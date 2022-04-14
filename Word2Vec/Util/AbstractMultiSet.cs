@@ -74,6 +74,11 @@ namespace Word2Vec.Util
             return item;
         }
 
+        public T[] ElementSet()
+        {
+            return Dict.Keys.ToArray();
+        }
+
         public IEnumerator<T> GetEnumerator()
         {
             foreach (var kvp in Dict)

@@ -65,8 +65,7 @@ namespace Word2Vec
             Console.WriteLine($"Training model {neuralNetworkConfig}");
             model = neuralNetworkConfig.CreateTrainer(vocab, huffmanNodes, listener).Train(sentences);
 
-            // return new Word2VecModel(vocab.ElementSet(), model.LayerSize, Doubles.Concat(model.Vectors()));
-            throw new NotImplementedException();
+            return new Word2VecModel(vocab.ElementSet(), model.LayerSize, model.Vectors);
         }
     }
 }
