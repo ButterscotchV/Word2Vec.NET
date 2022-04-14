@@ -156,7 +156,7 @@ namespace Word2Vec
 
         public virtual void Update(Stage stage, double progress)
         {
-            Console.WriteLine($"Stage {Enum.GetName(stage)}, progress {progress:0.00}%");
+            Console.WriteLine($"Stage {Enum.GetName(stage)}, progress {progress*100.0:0.00}%");
         }
     }
 }

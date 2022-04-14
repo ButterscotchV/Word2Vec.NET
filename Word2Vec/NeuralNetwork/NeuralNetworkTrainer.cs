@@ -222,13 +222,13 @@ namespace Word2Vec.NeuralNetwork
                     int i = 0;
                     foreach (var batch in batched)
                     {
-                        tasks.Add(Task.Run(() => CreateWorker(i, iter, batch)));
+                        tasks.Add(Task.Run(() => CreateWorker(i, iter, batch).Run()));
                         i++;
                     }
 
                     try
                     {
-
+                        Task.WhenAll(tasks).Wait();
                     }
                     catch (ExecutionException e)
                     {

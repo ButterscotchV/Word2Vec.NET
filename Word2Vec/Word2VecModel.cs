@@ -8,6 +8,16 @@ namespace Word2Vec
 
         public Word2VecModel(TToken[] vocab, int layerSize, double[][] vectors)
         {
+            if (vocab.Length != vectors.Length)
+            {
+                throw new ArgumentException($"{nameof(vocab)} [{vocab.Length}] and {nameof(vectors)} [{vectors.Length}] must be the same length!");
+            }
+
+            if (vectors.Length > 0 && vectors[0].Length != layerSize)
+            {
+                throw new ArgumentException($"{nameof(vectors)} [{vectors.Length}] and {nameof(layerSize)} ({layerSize}) must be the same size!");
+            }
+
             Vocab = vocab;
             LayerSize = layerSize;
             Vectors = vectors;

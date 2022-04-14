@@ -27,7 +27,7 @@ namespace Word2Vec.Tests
 
             public override void Update(Stage stage, double progress)
             {
-                output.WriteLine($"Stage {Enum.GetName(stage)}, progress {progress:0.00}%");
+                output.WriteLine($"Stage {Enum.GetName(stage)}, progress {progress*100.0:0.00}%");
             }
         }
 
