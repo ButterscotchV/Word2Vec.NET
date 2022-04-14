@@ -1,27 +1,27 @@
 namespace Word2Vec.Util
 {
-    public struct MultiSetEntry<TEntry>
+    public struct MultiSetEntry<T>
     {
-        private readonly TEntry entry;
+        private readonly T element;
         private readonly int count;
 
-        public MultiSetEntry(TEntry entry, int count)
+        public MultiSetEntry(T element, int count)
         {
-            this.entry = entry;
+            this.element = element;
             this.count = count;
         }
 
-        public MultiSetEntry(KeyValuePair<TEntry, int> pair) : this(pair.Key, pair.Value)
+        public MultiSetEntry(KeyValuePair<T, int> pair) : this(pair.Key, pair.Value)
         {
         }
 
-        public TEntry Entry => entry;
+        public T Element => element;
 
         public int Count => count;
 
         public override string ToString()
         {
-            return $"[{Entry}, {Count}]";
+            return $"[{Element}, {Count}]";
         }
     }
 }

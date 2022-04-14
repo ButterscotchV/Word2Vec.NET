@@ -1,5 +1,3 @@
-using System.Collections;
-
 namespace Word2Vec.Util
 {
     public class SortedMultiSet<T> : AbstractMultiSet<T>, IEnumerable<T>, ICloneable where T : notnull

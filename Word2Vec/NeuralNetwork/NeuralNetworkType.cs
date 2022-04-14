@@ -1,3 +1,6 @@
+using Word2Vec.Huffman;
+using Word2Vec.Util;
+
 namespace Word2Vec.NeuralNetwork
 {
     public static class NeuralNetworkTypeValues
@@ -23,8 +26,7 @@ namespace Word2Vec.NeuralNetwork
             }
 
             // TODO Implement this
-            /*
-            public NeuralNetworkTrainer CreateTrainer(NeuralNetworkConfig config, List<int> counts, Dictionary<int, HuffmanNode> huffmanNodes, TrainingProgressListener listener)
+            public NeuralNetworkTrainer CreateTrainer(NeuralNetworkConfig config, OrderedMultiSet<int> counts, Dictionary<int, HuffmanCoding.HuffmanNode> huffmanNodes, TrainingProgressListener listener)
             {
                 switch (EnumValue)
                 {
@@ -36,7 +38,6 @@ namespace Word2Vec.NeuralNetwork
                         throw new NotImplementedException("The requested training option has not been implemented yet");
                 }
             }
-            */
         }
 
         public static readonly List<NeuralNetworkType> Values = new();

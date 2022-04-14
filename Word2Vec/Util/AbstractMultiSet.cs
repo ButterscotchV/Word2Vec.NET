@@ -6,6 +6,9 @@ namespace Word2Vec.Util
     {
         public abstract IDictionary<T, int> Dict { get; }
 
+        public int EntryCount => Dict.Count;
+        public int ElementCount => Dict.Values.Sum();
+
         public AbstractMultiSet()
         {
         }
@@ -23,7 +26,7 @@ namespace Word2Vec.Util
             }
         }
 
-        public int Count(T item)
+        public int CountOf(T item)
         {
             return Dict.ContainsKey(item) ? Dict[item] : 0;
         }
@@ -94,13 +97,18 @@ namespace Word2Vec.Util
             return GetEntryEnumerator();
         }
 
+        public IEnumerable<MultiSetEntry<T>> GetAsEntryEnumerable()
+        {
+            return this;
+        }
+
         public void Filter(Predicate<MultiSetEntry<T>> predicate)
         {
-            foreach (var entry in (IEnumerable<MultiSetEntry<T>>)this)
+            foreach (var entry in GetAsEntryEnumerable())
             {
                 if (!predicate(entry))
                 {
-                    Dict.Remove(entry.Entry);
+                    Dict.Remove(entry.Element);
                 }
             }
         }

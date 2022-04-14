@@ -74,7 +74,7 @@ namespace Word2Vec
 
         public bool UseHierarchicalSoftmax { get; set; } = false;
 
-        public MultiSet<int> Vocab { get; set; } = new();
+        public AbstractMultiSet<int>? Vocab { get; set; } = null;
 
         public int MinVocabFrequency
         {
