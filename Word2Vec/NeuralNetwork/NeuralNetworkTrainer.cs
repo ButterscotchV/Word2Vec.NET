@@ -234,6 +234,11 @@ namespace Word2Vec.NeuralNetwork
                     {
                         throw new InvalidOperationException("Error training neural network", e);
                     }
+
+                    foreach (var task in tasks)
+                    {
+                        task.Dispose();
+                    }
                 }
             }
             finally
