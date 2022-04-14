@@ -12,5 +12,11 @@ namespace Word2Vec
             LayerSize = layerSize;
             Vectors = vectors;
         }
+
+        /// <returns><see cref="Word2VecTrainerBuilder{TToken}"/> for training a model</returns>
+        public static Word2VecTrainerBuilder<TToken> Trainer()
+        {
+            return new();
+        }
     }
 }

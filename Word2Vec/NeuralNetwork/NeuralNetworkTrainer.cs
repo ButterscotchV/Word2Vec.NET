@@ -126,6 +126,11 @@ namespace Word2Vec.NeuralNetwork
             }
 
             var nodeIter = huffmanNodes.Values.GetEnumerator();
+            if (!nodeIter.MoveNext())
+            {
+                throw new Exception("Failed to initialize unigram table, there are no huffman nodes");
+            }
+
             HuffmanCoding<TToken>.HuffmanNode last = nodeIter.Current;
             double d1 = Math.Pow(last.Count, power) / trainWordsPow;
             int i = 0;
