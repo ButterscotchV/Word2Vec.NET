@@ -15,7 +15,7 @@ namespace Word2Vec.NeuralNetwork
         public readonly double initialLearningRate;
         public readonly bool useHierarchicalSoftmax;
 
-        public NeuralNetworkTrainer CreateTrainer(OrderedMultiSet<int> vocab, Dictionary<int, HuffmanCoding.HuffmanNode> huffmanNodes, TrainingProgressListener listener)
+        public NeuralNetworkTrainer<TToken> CreateTrainer<TToken>(OrderedMultiSet<TToken> vocab, Dictionary<TToken, HuffmanCoding<TToken>.HuffmanNode> huffmanNodes, TrainingProgressListener listener) where TToken : notnull
         {
             return type.CreateTrainer(this, vocab, huffmanNodes, listener);
         }

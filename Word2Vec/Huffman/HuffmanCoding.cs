@@ -2,7 +2,7 @@ using Word2Vec.Util;
 
 namespace Word2Vec.Huffman
 {
-    public class HuffmanCoding
+    public class HuffmanCoding<TToken> where TToken : notnull
     {
         // Node
         public class HuffmanNode
@@ -28,16 +28,16 @@ namespace Word2Vec.Huffman
             }
         }
 
-        private readonly OrderedMultiSet<int> vocab;
+        private readonly OrderedMultiSet<TToken> vocab;
         private readonly TrainingProgressListener listener;
 
-        public HuffmanCoding(OrderedMultiSet<int> vocab, TrainingProgressListener listener)
+        public HuffmanCoding(OrderedMultiSet<TToken> vocab, TrainingProgressListener listener)
         {
             this.vocab = vocab;
             this.listener = listener;
         }
 
-        public Dictionary<int, HuffmanNode> Encode()
+        public Dictionary<TToken, HuffmanNode> Encode()
         {
             int numTokens = vocab.EntryCount;
 
@@ -133,12 +133,12 @@ namespace Word2Vec.Huffman
             }
         }
 
-        private Dictionary<int, HuffmanNode> Encode(byte[] binary, int[] parentNode)
+        private Dictionary<TToken, HuffmanNode> Encode(byte[] binary, int[] parentNode)
         {
             int numTokens = vocab.EntryCount;
 
             // Now assign binary code to each unique token
-            Dictionary<int, HuffmanNode> result = new();
+            Dictionary<TToken, HuffmanNode> result = new();
             int nodeIdx = 0;
             foreach (var entry in vocab.GetAsEntryEnumerable())
             {
@@ -167,7 +167,7 @@ namespace Word2Vec.Huffman
                     rawPoints[codeLen - i] = points[i] - numTokens;
                 }
 
-                int token = entry.Element;
+                TToken token = entry.Element;
                 result.Add(token, new HuffmanNode(rawCode, rawPoints, nodeIdx, count));
 
                 if (nodeIdx % 1_000 == 0)

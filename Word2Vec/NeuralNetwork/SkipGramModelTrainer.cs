@@ -3,26 +3,26 @@ using Word2Vec.Util;
 
 namespace Word2Vec.NeuralNetwork
 {
-    public class SkipGramModelTrainer : NeuralNetworkTrainer
+    public class SkipGramModelTrainer<TToken> : NeuralNetworkTrainer<TToken> where TToken : notnull
     {
-        public SkipGramModelTrainer(NeuralNetworkConfig config, OrderedMultiSet<int> vocab, Dictionary<int, HuffmanCoding.HuffmanNode> huffmanNodes, TrainingProgressListener listener) : base(config, vocab, huffmanNodes, listener)
+        public SkipGramModelTrainer(NeuralNetworkConfig config, OrderedMultiSet<TToken> vocab, Dictionary<TToken, HuffmanCoding<TToken>.HuffmanNode> huffmanNodes, TrainingProgressListener listener) : base(config, vocab, huffmanNodes, listener)
         {
         }
 
         private class SkipGramWorker : Worker
         {
-            public SkipGramWorker(int randomSeed, int iter, IEnumerable<List<int>> batch, NeuralNetworkTrainer networkTrainer) : base(randomSeed, iter, batch, networkTrainer)
+            public SkipGramWorker(int randomSeed, int iter, IEnumerable<List<TToken>> batch, NeuralNetworkTrainer<TToken> networkTrainer) : base(randomSeed, iter, batch, networkTrainer)
             {
             }
 
-            public override void TrainSentence(List<int> sentence)
+            public override void TrainSentence(List<TToken> sentence)
             {
                 int sentenceLength = sentence.Count;
 
                 for (int sentencePosition = 0; sentencePosition < sentenceLength; sentencePosition++)
                 {
-                    int word = sentence[sentencePosition];
-                    HuffmanCoding.HuffmanNode huffmanNode = networkTrainer.huffmanNodes[word];
+                    TToken word = sentence[sentencePosition];
+                    HuffmanCoding<TToken>.HuffmanNode huffmanNode = networkTrainer.huffmanNodes[word];
 
                     for (int c = 0; c < networkTrainer.layer1_size; c++)
                         neu1[c] = 0;
@@ -83,7 +83,7 @@ namespace Word2Vec.NeuralNetwork
             }
         }
 
-        protected override Worker CreateWorker(int randomSeed, int iter, IEnumerable<List<int>> batch)
+        protected override Worker CreateWorker(int randomSeed, int iter, IEnumerable<List<TToken>> batch)
         {
             return new SkipGramWorker(randomSeed, iter, batch, this);
         }

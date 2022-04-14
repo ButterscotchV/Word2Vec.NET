@@ -25,15 +25,14 @@ namespace Word2Vec.NeuralNetwork
                 Values.Add(this);
             }
 
-            // TODO Implement this
-            public NeuralNetworkTrainer CreateTrainer(NeuralNetworkConfig config, OrderedMultiSet<int> counts, Dictionary<int, HuffmanCoding.HuffmanNode> huffmanNodes, TrainingProgressListener listener)
+            public NeuralNetworkTrainer<TToken> CreateTrainer<TToken>(NeuralNetworkConfig config, OrderedMultiSet<TToken> counts, Dictionary<TToken, HuffmanCoding<TToken>.HuffmanNode> huffmanNodes, TrainingProgressListener listener) where TToken : notnull
             {
                 switch (EnumValue)
                 {
                     case NeuralNetworkTypeEnum.CBOW:
-                        return new CBOWModelTrainer(config, counts, huffmanNodes, listener);
+                        return new CBOWModelTrainer<TToken>(config, counts, huffmanNodes, listener);
                     case NeuralNetworkTypeEnum.SKIP_GRAM:
-                        return new SkipGramModelTrainer(config, counts, huffmanNodes, listener);
+                        return new SkipGramModelTrainer<TToken>(config, counts, huffmanNodes, listener);
                     default:
                         throw new NotImplementedException("The requested training option has not been implemented yet");
                 }

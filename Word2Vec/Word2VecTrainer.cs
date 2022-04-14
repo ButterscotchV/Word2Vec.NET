@@ -4,27 +4,27 @@ using Word2Vec.Util;
 
 namespace Word2Vec
 {
-    internal class Word2VecTrainer
+    public class Word2VecTrainer<TToken> where TToken : notnull
     {
         private readonly int minVocabFrequency;
-        private readonly AbstractMultiSet<int>? vocab;
+        private readonly AbstractMultiSet<TToken>? vocab;
         private readonly NeuralNetworkConfig neuralNetworkConfig;
 
-        public Word2VecTrainer(int minVocabFrequency, AbstractMultiSet<int>? vocab, NeuralNetworkConfig neuralNetworkConfig)
+        public Word2VecTrainer(int minVocabFrequency, AbstractMultiSet<TToken>? vocab, NeuralNetworkConfig neuralNetworkConfig)
         {
             this.minVocabFrequency = minVocabFrequency;
             this.vocab = vocab;
             this.neuralNetworkConfig = neuralNetworkConfig;
         }
 
-        private static MultiSet<int> Count(IEnumerable<int> tokens)
+        private static MultiSet<TToken> Count(IEnumerable<TToken> tokens)
         {
             return new(tokens);
         }
 
-        private OrderedMultiSet<int> FilterAndSort(AbstractMultiSet<int> counts)
+        private OrderedMultiSet<TToken> FilterAndSort(AbstractMultiSet<TToken> counts)
         {
-            OrderedMultiSet<int> cleaned = new(counts);
+            OrderedMultiSet<TToken> cleaned = new(counts);
 
             cleaned.Filter(x => x.Count >= minVocabFrequency);
             cleaned.SortHighestCountFirst();
@@ -32,7 +32,7 @@ namespace Word2Vec
             return cleaned;
         }
 
-        private IEnumerable<int> ConcatAll(IEnumerable<List<int>> sentences)
+        private IEnumerable<TToken> ConcatAll(IEnumerable<List<TToken>> sentences)
         {
             foreach (var sentence in sentences)
             {
@@ -43,29 +43,29 @@ namespace Word2Vec
             }
         }
 
-        public Word2VecModel Train(TrainingProgressListener listener, IEnumerable<List<int>> sentences)
+        public Word2VecModel<TToken> Train(TrainingProgressListener listener, IEnumerable<List<TToken>> sentences)
         {
             // TODO Add timers?
 
-            AbstractMultiSet<int> counts;
+            AbstractMultiSet<TToken> counts;
             Console.WriteLine("Acquiring word frequencies");
             listener.Update(TrainingProgressListener.Stage.AcquireVocab, 0.0);
             counts = this.vocab ?? Count(ConcatAll(sentences));
 
-            OrderedMultiSet<int> vocab;
+            OrderedMultiSet<TToken> vocab;
             Console.WriteLine("Filtering and sorting vocabulary");
             listener.Update(TrainingProgressListener.Stage.FilterSortVocab, 0.0);
             vocab = FilterAndSort(counts);
 
-            Dictionary<int, HuffmanCoding.HuffmanNode> huffmanNodes;
+            Dictionary<TToken, HuffmanCoding<TToken>.HuffmanNode> huffmanNodes;
             Console.WriteLine("Create Huffman encoding");
-            huffmanNodes = new HuffmanCoding(vocab, listener).Encode();
+            huffmanNodes = new HuffmanCoding<TToken>(vocab, listener).Encode();
 
-            NeuralNetworkTrainer.NeuralNetworkModel model;
+            NeuralNetworkTrainer<TToken>.NeuralNetworkModel model;
             Console.WriteLine($"Training model {neuralNetworkConfig}");
             model = neuralNetworkConfig.CreateTrainer(vocab, huffmanNodes, listener).Train(sentences);
 
-            return new Word2VecModel(vocab.ElementSet(), model.LayerSize, model.Vectors);
+            return new Word2VecModel<TToken>(vocab.ElementSet(), model.LayerSize, model.Vectors);
         }
     }
 }

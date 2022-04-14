@@ -3,7 +3,7 @@ using Word2Vec.Util;
 
 namespace Word2Vec
 {
-    public class Word2VecTrainerBuilder
+    public class Word2VecTrainerBuilder<TToken> where TToken : notnull
     {
         private int layerSize = 100;
         private int windowSize = 5;
@@ -74,7 +74,7 @@ namespace Word2Vec
 
         public bool UseHierarchicalSoftmax { get; set; } = false;
 
-        public AbstractMultiSet<int>? Vocab { get; set; } = null;
+        public AbstractMultiSet<TToken>? Vocab { get; set; } = null;
 
         public int MinVocabFrequency
         {
@@ -134,13 +134,13 @@ namespace Word2Vec
 
         public TrainingProgressListener? Listener { get; set; } = null;
 
-        public Word2VecModel Train(IEnumerable<List<int>> sentences)
+        public Word2VecModel<TToken> Train(IEnumerable<List<TToken>> sentences)
         {
             double inititalLearningRate = InitialLearningRate ?? Type.DefaultInitialLearningRate;
             TrainingProgressListener listener = Listener ?? new();
 
             NeuralNetworkConfig config = new NeuralNetworkConfig(Type, NumThreads, Iterations, LayerSize, WindowSize, NegativeSamples, DownSampleRate, inititalLearningRate, UseHierarchicalSoftmax);
-            return new Word2VecTrainer(MinVocabFrequency, Vocab, config).Train(listener, sentences);
+            return new Word2VecTrainer<TToken>(MinVocabFrequency, Vocab, config).Train(listener, sentences);
         }
     }
 

@@ -4,7 +4,7 @@ using Word2Vec.Util;
 namespace Word2Vec.NeuralNetwork
 {
     // Parent class for training word2vec's neural network
-    public abstract class NeuralNetworkTrainer
+    public abstract class NeuralNetworkTrainer<TToken> where TToken : notnull
     {
         /// <summary>
         /// Sentences longer than this are broken into multiple chunks
@@ -38,7 +38,7 @@ namespace Word2Vec.NeuralNetwork
         private readonly TrainingProgressListener listener;
 
         public readonly NeuralNetworkConfig config;
-        public readonly Dictionary<int, HuffmanCoding.HuffmanNode> huffmanNodes;
+        public readonly Dictionary<TToken, HuffmanCoding<TToken>.HuffmanNode> huffmanNodes;
         private readonly int vocabSize;
         public readonly int layer1_size;
         public readonly int window;
@@ -85,7 +85,7 @@ namespace Word2Vec.NeuralNetwork
         private readonly int[] table;
         public long startNano;
 
-        public NeuralNetworkTrainer(NeuralNetworkConfig config, OrderedMultiSet<int> vocab, Dictionary<int, HuffmanCoding.HuffmanNode> huffmanNodes, TrainingProgressListener listener)
+        public NeuralNetworkTrainer(NeuralNetworkConfig config, OrderedMultiSet<TToken> vocab, Dictionary<TToken, HuffmanCoding<TToken>.HuffmanNode> huffmanNodes, TrainingProgressListener listener)
         {
             this.config = config;
             this.huffmanNodes = huffmanNodes;
@@ -120,13 +120,13 @@ namespace Word2Vec.NeuralNetwork
             long trainWordsPow = 0;
             double power = 0.75;
 
-            foreach (HuffmanCoding.HuffmanNode node in huffmanNodes.Values)
+            foreach (HuffmanCoding<TToken>.HuffmanNode node in huffmanNodes.Values)
             {
                 trainWordsPow += (long)Math.Pow(node.Count, power);
             }
 
-            IEnumerator<HuffmanCoding.HuffmanNode> nodeIter = huffmanNodes.Values.GetEnumerator();
-            HuffmanCoding.HuffmanNode last = nodeIter.Current;
+            var nodeIter = huffmanNodes.Values.GetEnumerator();
+            HuffmanCoding<TToken>.HuffmanNode last = nodeIter.Current;
             double d1 = Math.Pow(last.Count, power) / trainWordsPow;
             int i = 0;
             for (int a = 0; a < TableSize; a++)
@@ -135,7 +135,7 @@ namespace Word2Vec.NeuralNetwork
                 if (a / (double)TableSize > d1)
                 {
                     i++;
-                    HuffmanCoding.HuffmanNode next = nodeIter.MoveNext() ? nodeIter.Current : last;
+                    HuffmanCoding<TToken>.HuffmanNode next = nodeIter.MoveNext() ? nodeIter.Current : last;
 
                     d1 += Math.Pow(next.Count, power) / trainWordsPow;
 
@@ -195,7 +195,7 @@ namespace Word2Vec.NeuralNetwork
             }
         }
 
-        public NeuralNetworkModel Train(IEnumerable<List<int>> sentences)
+        public NeuralNetworkModel Train(IEnumerable<List<TToken>> sentences)
         {
             // Create an executor that runs as many threads as are defined in the config, and blocks if
             // you're trying to run more. This is to make sure we don't read the entire corpus into
@@ -217,9 +217,7 @@ namespace Word2Vec.NeuralNetwork
                     int i = 0;
                     foreach (var batch in batched)
                     {
-                        tasks.Add(Task.Run(() => {
-                            CreateWorker(i, iter, batch);
-                        }));
+                        tasks.Add(Task.Run(() => CreateWorker(i, iter, batch)));
                         i++;
                     }
 
@@ -242,7 +240,7 @@ namespace Word2Vec.NeuralNetwork
         }
 
         /// <returns><see cref="Worker"/> to process the given sentences</returns>
-        protected abstract Worker CreateWorker(int randomSeed, int iter, IEnumerable<List<int>> batch);
+        protected abstract Worker CreateWorker(int randomSeed, int iter, IEnumerable<List<TToken>> batch);
 
         /// <summary>
         /// Worker thread that updates the neural network model
@@ -253,7 +251,7 @@ namespace Word2Vec.NeuralNetwork
 
             public long NextRandom;
             public readonly int Iter;
-            public readonly IEnumerable<List<int>> Batch;
+            public readonly IEnumerable<List<TToken>> Batch;
 
             /// <summary>
             /// The number of words observed in the training data for this worker that exist
@@ -269,9 +267,9 @@ namespace Word2Vec.NeuralNetwork
             public readonly double[] neu1;
             public readonly double[] neu1e;
 
-            protected NeuralNetworkTrainer networkTrainer;
+            protected NeuralNetworkTrainer<TToken> networkTrainer;
 
-            public Worker(int randomSeed, int iter, IEnumerable<List<int>> batch, NeuralNetworkTrainer networkTrainer)
+            public Worker(int randomSeed, int iter, IEnumerable<List<TToken>> batch, NeuralNetworkTrainer<TToken> networkTrainer)
             {
                 this.NextRandom = randomSeed;
                 this.Iter = iter;
@@ -287,8 +285,8 @@ namespace Word2Vec.NeuralNetwork
             {
                 foreach (var sentence in Batch)
                 {
-                    List<int> filteredSentence = new(sentence.Count);
-                    foreach (int s in sentence)
+                    List<TToken> filteredSentence = new(sentence.Count);
+                    foreach (var s in sentence)
                     {
                         if (!networkTrainer.huffmanNodes.ContainsKey(s))
                         {
@@ -346,7 +344,7 @@ namespace Word2Vec.NeuralNetwork
                 networkTrainer.listener.Update(TrainingProgressListener.Stage.TrainNeuralNetwork, currentActual / (double)(networkTrainer.config.iterations * networkTrainer.numTrainedTokens + 1));
             }
 
-            public void HandleNegativeSampling(HuffmanCoding.HuffmanNode huffmanNode)
+            public void HandleNegativeSampling(HuffmanCoding<TToken>.HuffmanNode huffmanNode)
             {
                 for (int d = 0; d <= networkTrainer.config.negativeSamples; d++)
                 {
@@ -388,7 +386,7 @@ namespace Word2Vec.NeuralNetwork
             /// <summary>
             /// Update the model with the given raw sentence
             /// </summary>
-            public abstract void TrainSentence(List<int> unfiltered);
+            public abstract void TrainSentence(List<TToken> unfiltered);
         }
     }
 }
